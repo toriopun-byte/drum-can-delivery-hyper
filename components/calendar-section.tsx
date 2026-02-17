@@ -1,0 +1,259 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { Calendar } from "@/components/ui/calendar"
+import { ReservationModal } from "@/components/reservation-modal"
+import { Button } from "@/components/ui/button"
+import { CalendarDays, Circle, X, Check, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { ja } from "date-fns/locale"
+import {
+  format,
+  isSameDay,
+  isBefore,
+  startOfDay,
+  parseISO,
+  addMonths,
+  subMonths,
+} from "date-fns"
+import useSWR from "swr"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+interface CalendarData {
+  year: number
+  month: number
+  bookedDates: string[]
+}
+
+export function CalendarSection() {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const today = startOfDay(new Date())
+
+  const year = currentMonth.getFullYear()
+  const month = currentMonth.getMonth() + 1
+
+  // Fetch calendar data from API
+  const { data, isLoading } = useSWR<CalendarData>(
+    `/api/calendar?year=${year}&month=${month}`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60000 }
+  )
+
+  // Also prefetch next month
+  const nextMonth = addMonths(currentMonth, 1)
+  useSWR<CalendarData>(
+    `/api/calendar?year=${nextMonth.getFullYear()}&month=${nextMonth.getMonth() + 1}`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60000 }
+  )
+
+  const bookedDates = (data?.bookedDates ?? []).map((d) => parseISO(d))
+
+  const isBooked = useCallback(
+    (date: Date) => bookedDates.some((d) => isSameDay(d, date)),
+    [bookedDates]
+  )
+  const isPast = useCallback(
+    (date: Date) => isBefore(date, today),
+    [today]
+  )
+  const isAvailable = useCallback(
+    (date: Date) => !isPast(date) && !isBooked(date),
+    [isPast, isBooked]
+  )
+
+  return (
+    <section id="calendar" className="bg-card py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="text-center mb-14">
+          <span className="inline-block bg-primary/10 text-primary text-sm font-bold px-4 py-1.5 rounded-full mb-4">
+            <CalendarDays className="w-4 h-4 inline mr-1 -mt-0.5" />
+            {"予約カレンダー"}
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
+            {"ご希望の日付を選んで予約"}
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+            {"Googleカレンダーと連動した最新の空き状況です。"}
+            <br className="hidden sm:block" />
+            <span className="inline-flex items-center gap-1">
+              <Check className="w-3.5 h-3.5 text-primary" />
+              {"が予約可能、"}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <X className="w-3.5 h-3.5 text-destructive" />
+              {"が予約済みの日付です。"}
+            </span>
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row items-start justify-center gap-8">
+          {/* Calendar */}
+          <div className="bg-background rounded-2xl border border-border p-5 shadow-sm relative">
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <h3 className="text-lg font-bold text-foreground">
+                {format(currentMonth, "yyyy年 M月", { locale: ja })}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {isLoading && (
+              <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            )}
+
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              month={currentMonth}
+              onMonthChange={setCurrentMonth}
+              locale={ja}
+              disabled={(date) => isPast(date) || isBooked(date)}
+              modifiers={{
+                booked: bookedDates,
+                available: (date: Date) => isAvailable(date),
+              }}
+              modifiersStyles={{
+                booked: {
+                  backgroundColor: "hsl(0 84% 60% / 0.12)",
+                  color: "hsl(0 84% 45%)",
+                  opacity: 0.6,
+                  cursor: "not-allowed",
+                },
+                available: {
+                  backgroundColor: "hsl(205 78% 42% / 0.08)",
+                  color: "hsl(205 78% 35%)",
+                },
+              }}
+              components={{
+                DayContent: ({ date }) => {
+                  const booked = isBooked(date)
+                  const past = isPast(date)
+                  return (
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span>{date.getDate()}</span>
+                      {!past && (
+                        <span className="text-[10px] leading-none font-bold">
+                          {booked ? (
+                            <X className="w-3 h-3 text-destructive" />
+                          ) : (
+                            <Check className="w-3 h-3 text-primary" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  )
+                },
+              }}
+              numberOfMonths={1}
+              className="text-foreground"
+            />
+
+            {/* Legend */}
+            <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-border px-2">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary" />
+                </div>
+                {"空きあり"}
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="w-5 h-5 rounded bg-destructive/10 flex items-center justify-center">
+                  <X className="w-3 h-3 text-destructive" />
+                </div>
+                {"予約済み"}
+              </div>
+            </div>
+          </div>
+
+          {/* Selected date info */}
+          <div className="flex-1 max-w-md w-full">
+            {selectedDate ? (
+              <div className="bg-background rounded-2xl border border-primary/20 p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <CalendarDays className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{"選択した日付"}</p>
+                    <p className="text-xl font-bold text-foreground">
+                      {format(selectedDate, "yyyy年M月d日（E）", { locale: ja })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-secondary/50 rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <span className="text-sm font-semibold text-foreground">
+                      {"予約可能です"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {"配達時間帯: 午前9:00〜午後5:00"}
+                  </p>
+                </div>
+
+                <ReservationModal defaultDate={selectedDate}>
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-6 rounded-xl text-base shadow-md">
+                    {"この日で予約する"}
+                  </Button>
+                </ReservationModal>
+              </div>
+            ) : (
+              <div className="bg-background rounded-2xl border border-dashed border-border p-8 text-center">
+                <CalendarDays className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+                <p className="text-lg font-semibold text-foreground mb-2">
+                  {"日付を選んでください"}
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {"カレンダーからご希望の日付をクリックすると、"}
+                  <br className="hidden sm:block" />
+                  {"空き状況と予約フォームが表示されます。"}
+                </p>
+              </div>
+            )}
+
+            {/* Quick info card */}
+            <div className="mt-6 bg-background rounded-2xl border border-border p-5">
+              <h4 className="font-bold text-foreground text-sm mb-3">{"予約について"}</h4>
+              <ul className="flex flex-col gap-2 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold mt-0.5">{"1"}</span>
+                  {"カレンダーから空きのある日付を選択"}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold mt-0.5">{"2"}</span>
+                  {"1日 or 2日間を選んでオプションを追加"}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold mt-0.5">{"3"}</span>
+                  {"予約完了メールが届きます"}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
