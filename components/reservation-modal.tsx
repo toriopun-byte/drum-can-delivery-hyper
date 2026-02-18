@@ -28,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react"
 import { ja } from "date-fns/locale"
 import { format, isBefore, startOfDay, addDays, isSameDay, parseISO } from "date-fns"
-import { sendReservationEmail } from "@/app/actions/send-reservation-email"
+// Reservation emails are sent via a Pages Function at /api/send-reservation
 import useSWR from "swr"
 
 /* ------------------------------------------------------------------ */
@@ -156,20 +156,25 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
     const endDate = dayCount === "2" ? addDays(date, 1) : undefined
 
     try {
-      await sendReservationEmail({
-        name,
-        email,
-        date: format(date, "yyyy年M月d日（E）", { locale: ja }),
-        dayCount: Number(dayCount),
-        endDate: endDate ? format(endDate, "yyyy年M月d日（E）", { locale: ja }) : undefined,
-        address,
-        quantity: Number(quantity),
-        addOns: selectedAddOns.map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id),
-        totalPrice: pricing.total,
-        notes: notes || undefined,
+      await fetch('/api/send-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          date: format(date, "yyyy年M月d日（E）", { locale: ja }),
+          dayCount: Number(dayCount),
+          endDate: endDate ? format(endDate, "yyyy年M月d日（E）", { locale: ja }) : undefined,
+          address,
+          quantity: Number(quantity),
+          addOns: selectedAddOns.map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id),
+          totalPrice: pricing.total,
+          notes: notes || undefined,
+        }),
       })
-    } catch {
-      // Even if email fails, show success
+        .catch((e) => console.error('send-reservation fetch error', e))
+    } catch (e) {
+      console.error(e)
     }
 
     setSending(false)

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { MessageCircle, Loader2, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react"
-import { sendInquiryEmail } from "@/app/actions/send-inquiry-email"
 
 export function InquirySection() {
   const [isOpen, setIsOpen] = useState(false)
@@ -39,7 +38,12 @@ export function InquirySection() {
 
     setSending(true)
     try {
-      const result = await sendInquiryEmail({ name, email, subject, message })
+      const res = await fetch('/api/send-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message }),
+      })
+      const result = await res.json()
       if (result.success) {
         setSubmitted(true)
         setName("")
@@ -49,7 +53,8 @@ export function InquirySection() {
       } else {
         alert(result.message || "送信に失敗しました")
       }
-    } catch {
+    } catch (e) {
+      console.error(e)
       alert("送信中にエラーが発生しました")
     }
     setSending(false)
