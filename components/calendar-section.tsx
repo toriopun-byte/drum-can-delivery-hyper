@@ -16,14 +16,7 @@ import {
   subMonths,
 } from "date-fns"
 import useSWR from "swr"
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-interface CalendarData {
-  year: number
-  month: number
-  bookedDates: string[]
-}
+import { fetchCalendarData, type CalendarData } from "@/lib/calendar-demo"
 
 export function CalendarSection() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -33,18 +26,17 @@ export function CalendarSection() {
   const year = currentMonth.getFullYear()
   const month = currentMonth.getMonth() + 1
 
-  // Fetch calendar data from API
+  // Fetch calendar data (API or client-side demo for static site)
   const { data, isLoading } = useSWR<CalendarData>(
     `/api/calendar?year=${year}&month=${month}`,
-    fetcher,
+    fetchCalendarData,
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   )
 
-  // Also prefetch next month
   const nextMonth = addMonths(currentMonth, 1)
   useSWR<CalendarData>(
     `/api/calendar?year=${nextMonth.getFullYear()}&month=${nextMonth.getMonth() + 1}`,
-    fetcher,
+    fetchCalendarData,
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   )
 

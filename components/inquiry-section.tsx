@@ -32,31 +32,24 @@ export function InquirySection() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim() || !email.trim() || !message.trim()) return
 
     setSending(true)
-    try {
-      const res = await fetch('/api/send-inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, subject, message }),
-      })
-      const result = await res.json()
-      if (result.success) {
-        setSubmitted(true)
-        setName("")
-        setEmail("")
-        setSubject("")
-        setMessage("")
-      } else {
-        alert(result.message || "送信に失敗しました")
-      }
-    } catch (e) {
-      console.error(e)
-      alert("送信中にエラーが発生しました")
-    }
+    // 静的サイト用: mailto でメールクライアントを開く
+    const subjectLine = subject.trim() ? `【裸一缶】${subject}` : "【裸一缶】お問い合わせ"
+    const subjectEnc = encodeURIComponent(subjectLine)
+    const body = encodeURIComponent(
+      `お名前: ${name}\nメール: ${email}\n\n${message}`
+    )
+    const mailto = `mailto:drumcandelivery@gmail.com?subject=${subjectEnc}&body=${body}`
+    window.location.href = mailto
+    setSubmitted(true)
+    setName("")
+    setEmail("")
+    setSubject("")
+    setMessage("")
     setSending(false)
   }
 

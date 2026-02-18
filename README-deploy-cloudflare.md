@@ -10,8 +10,10 @@
 このリポジトリの現状
 - Next.js: 16.1.6
 - `app/` ディレクトリあり（App Router）
-- `next.config.mjs` に `output: "export"` が設定されており、静的エクスポート（`next export`）を前提に構成されています
-- `package.json` の `build` スクリプトは `next build && next export` に設定済み（`out/` が生成されます）
+- `next.config.mjs` に `output: "export"` が設定されており、**完全静的サイト**として Cloudflare Pages で配信する構成です
+- ビルドは `pnpm build`（`next build`）で `out/` が生成されます
+- お問い合わせ・予約フォームはサーバー不要の **mailto:** リンクでメール送信します
+- カレンダー空き状況はクライアント側のデモデータで表示します（API 不要）
 
 推奨のデプロイ方式（まずはこちら）: 静的エクスポートを Cloudflare Pages で配信
 
@@ -47,7 +49,7 @@ npx serve out
 注意点 / トラブルシュート
 - `next.config.mjs` に `trailingSlash: true` が設定されているため、出力は各ページがディレクトリ（例: `/about/index.html`）に配置されます。リンクやリダイレクト設定に注意してください。
 - `images.unoptimized: true` が設定されているため、Next.js の Image 最適化機能は使われません（静的なイメージのまま配信されます）。必要なら Cloudflare Images や別の最適化を検討してください。
-- App Router の server actions や SSR/Edge 機能は静的エクスポートでは機能しません。動的レンダリングが必要なら次の「Next on Pages」を検討してください。
+- このプロジェクトは API ルート・Server Actions を削除し、静的サイト用に mailto とクライアント側デモデータに置き換えています。動的機能が必要なら「Next on Pages」を検討してください。
 
 オプション: Next on Pages（Edge / SSR）を使う場合（高度な設定）
 
@@ -67,6 +69,6 @@ npx serve out
 ---
 
 作業履歴
-- このリポジトリの `package.json` の `build` スクリプトは `next build && next export` に変更済みです。静的出力先は `out/` です。
+- 静的サイト化のため、`app/api/` および `app/actions/` を削除し、お問い合わせ・予約を mailto、カレンダーをクライアント側デモデータに変更済みです。ビルドは `pnpm build` で `out/` が出力されます。
 
 EOF

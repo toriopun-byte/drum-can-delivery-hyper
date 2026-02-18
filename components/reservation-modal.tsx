@@ -28,7 +28,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react"
 import { ja } from "date-fns/locale"
 import { format, isBefore, startOfDay, addDays, isSameDay, parseISO } from "date-fns"
-// Reservation emails are sent via a Pages Function at /api/send-reservation
 import useSWR from "swr"
 
 /* ------------------------------------------------------------------ */
@@ -57,13 +56,7 @@ const STANDARD_ADD_ON_IDS: AddOnId[] = [
   "sunoko",
 ]
 
-interface CalendarData {
-  year: number
-  month: number
-  bookedDates: string[]
-}
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+import { fetchCalendarData, type CalendarData } from "@/lib/calendar-demo"
 
 /* ------------------------------------------------------------------ */
 /*  Swimwear options                                                   */
@@ -148,34 +141,33 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
   }
 
   /* ---------- Submit ---------- */
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!date || !consent) return
 
     setSending(true)
     const endDate = dayCount === "2" ? addDays(date, 1) : undefined
+    const dateStr = format(date, "yyyy年M月d日（E）", { locale: ja })
+    const endDateStr = endDate ? format(endDate, "yyyy年M月d日（E）", { locale: ja }) : ""
+    const addOnsLabels = selectedAddOns
+      .map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id)
+      .join("、")
 
-    try {
-      await fetch('/api/send-reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          date: format(date, "yyyy年M月d日（E）", { locale: ja }),
-          dayCount: Number(dayCount),
-          endDate: endDate ? format(endDate, "yyyy年M月d日（E）", { locale: ja }) : undefined,
-          address,
-          quantity: Number(quantity),
-          addOns: selectedAddOns.map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id),
-          totalPrice: pricing.total,
-          notes: notes || undefined,
-        }),
-      })
-        .catch((e) => console.error('send-reservation fetch error', e))
-    } catch (e) {
-      console.error(e)
-    }
+    // 静的サイト用: mailto で予約内容をメール送信
+    const subject = encodeURIComponent("【裸一缶】ご予約希望")
+    const body = encodeURIComponent(
+      `以下の内容で予約希望です。\n\n` +
+        `お名前: ${name}\n` +
+        `メール: ${email}\n` +
+        `電話: ${phone || "（未記入）"}\n` +
+        `ご利用日: ${dateStr}（${dayCount}日間）${endDateStr ? ` 〜 ${endDateStr}` : ""}\n` +
+        `ご利用場所: ${address}\n` +
+        `ドラム缶: ${quantity}本\n` +
+        `追加オプション: ${addOnsLabels || "なし"}\n` +
+        `お見積り: ¥${pricing.total.toLocaleString()}\n` +
+        (notes ? `備考: ${notes}\n` : "")
+    )
+    window.location.href = `mailto:drumcandelivery@gmail.com?subject=${subject}&body=${body}`
 
     setSending(false)
     setSubmitted(true)
@@ -213,7 +205,7 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
 
   const { data: calendarData } = useSWR<CalendarData>(
     `/api/calendar?year=${year}&month=${month}`,
-    fetcher,
+    fetchCalendarData,
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   )
 
