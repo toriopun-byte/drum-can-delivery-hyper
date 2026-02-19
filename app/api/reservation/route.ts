@@ -108,6 +108,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("Reservation error:", error)
+    console.error("Error type:", typeof error)
+    console.error("Error message:", error instanceof Error ? error.message : "No message")
     console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace")
     
     // より詳細なエラーメッセージ

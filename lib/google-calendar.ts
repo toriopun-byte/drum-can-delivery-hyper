@@ -245,6 +245,7 @@ export async function createReservationEvent(
         visibility: "default", // 公開イベント
         colorId: "11", // 赤色で表示
       }),
+      signal: AbortSignal.timeout(10000), // 10秒タイムアウト
     }
   )
 
@@ -259,28 +260,6 @@ export async function createReservationEvent(
   }
 
   console.log(`Successfully created event with ID: ${json.id}`)
-  
-  // イベントが正しく作成されたか確認
-  try {
-    const verifyRes = await fetch(
-      `${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId)}/events/${json.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-    
-    if (verifyRes.ok) {
-      const event = await verifyRes.json()
-      console.log(`Verified event: ${event.summary} on ${event.start?.date}`)
-    } else {
-      console.warn("Failed to verify created event")
-    }
-  } catch (error) {
-    console.warn("Event verification failed:", error)
-  }
-
   return { eventId: json.id }
 }
 
