@@ -32,25 +32,46 @@ export function InquirySection() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim() || !email.trim() || !message.trim()) return
 
     setSending(true)
-    // 静的サイト用: mailto でメールクライアントを開く
-    const subjectLine = subject.trim() ? `【裸一缶】${subject}` : "【裸一缶】お問い合わせ"
-    const subjectEnc = encodeURIComponent(subjectLine)
-    const body = encodeURIComponent(
-      `お名前: ${name}\nメール: ${email}\n\n${message}`
-    )
-    const mailto = `mailto:drumcandelivery@gmail.com?subject=${subjectEnc}&body=${body}`
-    window.location.href = mailto
-    setSubmitted(true)
-    setName("")
-    setEmail("")
-    setSubject("")
-    setMessage("")
-    setSending(false)
+    try {
+      const response = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          subject: subject.trim(),
+          message: message.trim(),
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || "送信に失敗しました。")
+      }
+
+      const result = await response.json()
+      setSubmitted(true)
+      console.log("Inquiry sent successfully:", result)
+      
+      // フォームをクリア
+      setName("")
+      setEmail("")
+      setSubject("")
+      setMessage("")
+      
+    } catch (err) {
+      console.error("Inquiry submission error:", err)
+      alert(err instanceof Error ? err.message : "送信に失敗しました。時間をおいて再度お試しください。")
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -74,7 +95,7 @@ export function InquirySection() {
             )}
           </h2>
           <p className="mt-3 text-muted-foreground">
-            {"お気軽にご質問・ご相談ください。drumcandelivery@gmail.com 宛に送信されます。"}
+            {"お気軽にご質問・ご相談ください。drumcandelivery@gmail.com 宛に直接送信されます。"}
           </p>
         </button>
 

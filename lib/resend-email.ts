@@ -16,7 +16,7 @@ export interface ReservationEmailPayload {
   totalPrice: number
 }
 
-function getResendConfig() {
+export function getResendConfig() {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.RESEND_FROM_EMAIL
 
@@ -108,7 +108,7 @@ ${notes ? `<p><strong>備考</strong>: ${notes}</p>` : ""}
 `
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string) {
   const { apiKey, from } = getResendConfig()
 
   const res = await fetch(RESEND_API_URL, {
