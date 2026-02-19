@@ -8,8 +8,10 @@ import { CalendarDays, X, Check, Loader2, ChevronLeft, ChevronRight } from "luci
 import { ja } from "date-fns/locale"
 import {
   format,
+  isPast,
   isSameDay,
   isBefore,
+  isAfter,
   startOfDay,
   parseISO,
   addMonths,
@@ -17,6 +19,9 @@ import {
 } from "date-fns"
 import useSWR from "swr"
 import { fetchCalendarData, type CalendarData } from "@/lib/calendar-demo"
+
+// 予約可能な最終日（2026年12月31日）
+const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12月）
 
 export function CalendarSection() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -133,7 +138,12 @@ export function CalendarSection() {
               month={currentMonth}
               onMonthChange={setCurrentMonth}
               locale={ja}
-              disabled={(date) => isPast(date) || isBooked(date) || isClosed(date)}
+              disabled={(date) =>
+                isBefore(date, today) ||
+                isAfter(date, MAX_RESERVATION_DATE) ||
+                isBooked(date) ||
+                isClosed(date)
+              }
               modifiers={{
                 booked: bookedDates,
                 available: (date: Date) => isAvailable(date),

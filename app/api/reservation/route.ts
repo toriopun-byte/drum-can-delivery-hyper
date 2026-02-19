@@ -52,6 +52,18 @@ export async function POST(req: NextRequest) {
     totalPrice,
   } = parsed
 
+  // 予約可能期間のバリデーション（2026年12月31日まで）
+  const MAX_RESERVATION_DATE = "2026-12-31"
+  const reservationStart = new Date(startDate)
+  const maxDate = new Date(MAX_RESERVATION_DATE)
+  
+  if (reservationStart > maxDate) {
+    return NextResponse.json(
+      { error: `予約は2026年12月31日までとなっております。それ以降の予約はできません。` },
+      { status: 400 }
+    )
+  }
+
   // 環境変数の確認
   console.log("Environment variables check:")
   console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? "SET" : "NOT SET")

@@ -27,8 +27,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react"
 import { ja } from "date-fns/locale"
-import { format, isBefore, startOfDay, addDays, isSameDay, parseISO } from "date-fns"
+import { format, isBefore, startOfDay, addDays, isSameDay, parseISO, isAfter } from "date-fns"
 import useSWR, { useSWRConfig } from "swr"
+
+// 予約可能な最終日（2026年12月31日）
+const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12月）
 
 /* ------------------------------------------------------------------ */
 /*  Pricing Constants                                                  */
@@ -333,7 +336,10 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
                       month={calendarMonth}
                       onMonthChange={setCalendarMonth}
                       disabled={(d) =>
-                        isBefore(d, addDays(today, 1)) || isBooked(d) || isClosed(d)
+                        isBefore(d, addDays(today, 1)) ||
+                        isAfter(d, MAX_RESERVATION_DATE) ||
+                        isBooked(d) ||
+                        isClosed(d)
                       }
                       components={{
                         DayContent: ({ date: day }) => {
