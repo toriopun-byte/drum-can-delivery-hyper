@@ -1,4 +1,4 @@
-import { JWTHeaderParameters, KeyLike, SignJWT, importPKCS8 } from "jose"
+import { JWTHeaderParameters, SignJWT, importPKCS8 } from "jose"
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 const GOOGLE_CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3"
@@ -43,7 +43,12 @@ async function getServiceAccountKey(): Promise<{
 
   if (!clientEmail || !privateKey) {
     throw new Error(
-      "Googleサービスアカウントの環境変数(GOOGLE_SERVICE_ACCOUNT_EMAIL / GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)が設定されていません。"
+      "Googleサービスアカウントの環境変数が設定されていません。\n" +
+      "設定が必要な環境変数:\n" +
+      "- GOOGLE_SERVICE_ACCOUNT_EMAIL\n" +
+      "- GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY\n" +
+      "- GOOGLE_CALENDAR_ID\n\n" +
+      "Cloudflare Pagesの環境変数設定でこれらの値を設定してください。"
     )
   }
 
@@ -71,7 +76,7 @@ async function getGoogleAccessToken(): Promise<string> {
     typ: "JWT",
   }
 
-  const key: KeyLike = await importPKCS8(privateKey, "RS256")
+  const key = await importPKCS8(privateKey, "RS256")
 
   const assertion = await new SignJWT(payload)
     .setProtectedHeader(header)

@@ -22,7 +22,11 @@ function getResendConfig() {
 
   if (!apiKey || !from) {
     throw new Error(
-      "Resendの環境変数(RESEND_API_KEY / RESEND_FROM_EMAIL)が設定されていません。"
+      "Resendの環境変数が設定されていません。\n" +
+      "設定が必要な環境変数:\n" +
+      "- RESEND_API_KEY\n" +
+      "- RESEND_FROM_EMAIL\n\n" +
+      "Cloudflare Pagesの環境変数設定でこれらの値を設定してください。"
     )
   }
 

@@ -23,9 +23,12 @@ const reservationSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  console.log("Reservation API called")
+  
   let parsed
   try {
     const json = await req.json()
+    console.log("Request data:", JSON.stringify(json, null, 2))
     parsed = reservationSchema.parse(json)
   } catch (error) {
     console.error("Validation error:", error)
@@ -49,6 +52,14 @@ export async function POST(req: NextRequest) {
     totalPrice,
   } = parsed
 
+  // 環境変数の確認
+  console.log("Environment variables check:")
+  console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? "SET" : "NOT SET")
+  console.log("GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY:", process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ? "SET" : "NOT SET")
+  console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID ? "SET" : "NOT SET")
+  console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY ? "SET" : "NOT SET")
+  console.log("RESEND_FROM_EMAIL:", process.env.RESEND_FROM_EMAIL ? "SET" : "NOT SET")
+
   const reservationPayload: ReservationPayload = {
     name,
     email,
@@ -65,6 +76,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    console.log("Starting Google Calendar registration...")
     // Google Calendarに予約を登録
     await createReservationEvent(reservationPayload)
     console.log("Google Calendar registration successful")
@@ -74,6 +86,7 @@ export async function POST(req: NextRequest) {
     end.setDate(end.getDate() + Math.max(1, dayCount || 1))
     const endDateStr = end.toISOString().slice(0, 10)
 
+    console.log("Starting email sending...")
     // メール送信
     await sendReservationEmails({
       startDate,
@@ -95,6 +108,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("Reservation error:", error)
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace")
     
     // より詳細なエラーメッセージ
     let errorMessage = "予約処理に失敗しました。時間をおいて再度お試しください。"
