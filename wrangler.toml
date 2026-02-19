@@ -6,10 +6,5 @@ compatibility_date = "2025-02-19"
 pages_build_output_dir = ".vercel/output/static"
 
 # Node.js compatibility for API routes
-[compatibility_flags]
-nodejs_compat = true
-
-# Use npm instead of pnpm
-[build]
-command = "npm run build"
+compatibility_flags = ["nodejs_compat"]
 
