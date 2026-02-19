@@ -28,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react"
 import { ja } from "date-fns/locale"
 import { format, isBefore, startOfDay, addDays, isSameDay, parseISO } from "date-fns"
-import useSWR from "swr"
+import useSWR, { useSWRConfig } from "swr"
 
 /* ------------------------------------------------------------------ */
 /*  Pricing Constants                                                  */
@@ -80,6 +80,7 @@ interface ReservationModalProps {
 }
 
 export function ReservationModal({ children, defaultDate }: ReservationModalProps) {
+  const { mutate } = useSWRConfig()
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
   const [open, setOpen] = useState(false)
@@ -187,6 +188,17 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
       }
 
       setSubmitted(true)
+      
+      // 予約成功後にカレンダーデータを再取得
+      if (date) {
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1
+        mutate(`/api/calendar?year=${year}&month=${month}`)
+        
+        // 翌月のデータも再取得
+        const nextMonth = new Date(year, month, 1)
+        mutate(`/api/calendar?year=${nextMonth.getFullYear()}&month=${nextMonth.getMonth() + 1}`)
+      }
     } catch (err) {
       console.error(err)
       setErrorMessage(

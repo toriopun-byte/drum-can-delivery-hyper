@@ -116,6 +116,7 @@ export async function fetchMonthStatusFromGoogleCalendar(
     throw new Error("環境変数 GOOGLE_CALENDAR_ID が設定されていません。")
   }
 
+  console.log(`Fetching calendar data for ${year}/${month} from calendar: ${calendarId}`)
   const accessToken = await getGoogleAccessToken()
 
   const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0))
@@ -138,11 +139,14 @@ export async function fetchMonthStatusFromGoogleCalendar(
 
   if (!res.ok) {
     const text = await res.text()
+    console.error(`Calendar API error: ${res.status} ${text}`)
     throw new Error(`Googleカレンダー取得に失敗しました: ${res.status} ${text}`)
   }
 
-  const data = (await res.json()) as { items?: GoogleCalendarEvent[] }
-  const items = data.items ?? []
+  const json = (await res.json()) as { items?: GoogleCalendarEvent[] }
+  const items = json.items ?? []
+
+  console.log(`Found ${items.length} events in calendar`)
 
   const bookedDatesSet = new Set<string>()
   const closedDatesSet = new Set<string>()
@@ -167,13 +171,17 @@ export async function fetchMonthStatusFromGoogleCalendar(
       if (summary.includes("予約済み")) {
         bookedDatesSet.add(isoDate)
         closedDatesSet.delete(isoDate)
+        console.log(`Found booked date: ${isoDate}`)
       } else if (summary.includes("予約不可")) {
         if (!bookedDatesSet.has(isoDate)) {
           closedDatesSet.add(isoDate)
+          console.log(`Found closed date: ${isoDate}`)
         }
       }
     }
   }
+
+  console.log(`Final status - Booked: ${Array.from(bookedDatesSet).join(', ')}, Closed: ${Array.from(closedDatesSet).join(', ')}`)
 
   return {
     year,
@@ -233,6 +241,9 @@ export async function createReservationEvent(
           date: end.toISOString().slice(0, 10),
           timeZone: "Asia/Tokyo",
         },
+        transparency: "opaque", // 予定ありとして表示
+        visibility: "default", // 公開イベント
+        colorId: "11", // 赤色で表示
       }),
     }
   )
@@ -245,6 +256,29 @@ export async function createReservationEvent(
   const json = (await res.json()) as { id?: string }
   if (!json.id) {
     throw new Error("Googleカレンダーのレスポンスに event id が含まれていません。")
+  }
+
+  console.log(`Successfully created event with ID: ${json.id}`)
+  
+  // イベントが正しく作成されたか確認
+  try {
+    const verifyRes = await fetch(
+      `${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId)}/events/${json.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    
+    if (verifyRes.ok) {
+      const event = await verifyRes.json()
+      console.log(`Verified event: ${event.summary} on ${event.start?.date}`)
+    } else {
+      console.warn("Failed to verify created event")
+    }
+  } catch (error) {
+    console.warn("Event verification failed:", error)
   }
 
   return { eventId: json.id }

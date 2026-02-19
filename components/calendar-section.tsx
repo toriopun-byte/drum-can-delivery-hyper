@@ -27,10 +27,15 @@ export function CalendarSection() {
   const month = currentMonth.getMonth() + 1
 
   // Fetch calendar data (API or client-side demo for static site)
-  const { data, isLoading } = useSWR<CalendarData>(
+  const { data, isLoading, mutate } = useSWR<CalendarData>(
     `/api/calendar?year=${year}&month=${month}`,
     fetchCalendarData,
-    { revalidateOnFocus: false, dedupingInterval: 60000 }
+    { 
+      revalidateOnFocus: true, 
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000, // 5秒に短縮
+      refreshInterval: 30000, // 30秒ごとに自動更新
+    }
   )
 
   const nextMonth = addMonths(currentMonth, 1)
