@@ -228,6 +228,33 @@ export function CalendarSection() {
                   </p>
                 </div>
 
+                {/* カレンダー凡例 */}
+                <div className="bg-blue-50 rounded-xl p-4 mb-4">
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2">{"カレンダーの記号について"}</h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">◯</span>
+                      <span className="text-gray-700">{"予約可能"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">☓</span>
+                      <span className="text-gray-700">{"予約済み"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-gray-400 text-white flex items-center justify-center font-bold">−</span>
+                      <span className="text-gray-700">{"予約不可"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 予約期間の注意 */}
+                <div className="bg-amber-50 rounded-xl p-4 mb-4">
+                  <h4 className="text-sm font-semibold text-amber-900 mb-2">{"予約期間について"}</h4>
+                  <p className="text-xs text-amber-800">
+                    {"2026年12月31日まで予約可能です。それ以降は予約できません。"}
+                  </p>
+                </div>
+
                 <ReservationModal defaultDate={selectedDate}>
                   <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-6 rounded-xl text-base shadow-md">
                     {"この日で予約する"}
