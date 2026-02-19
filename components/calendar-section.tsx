@@ -151,10 +151,10 @@ export function CalendarSection() {
                   const past = isPast(date)
                   const closed = isClosed(date)
                   return (
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span>{date.getDate()}</span>
+                    <div className="flex flex-col items-center justify-center gap-0.5">
+                      <span className="text-sm font-medium leading-none">{date.getDate()}</span>
                       <span
-                        className={`text-[10px] leading-none font-bold ${
+                        className={`text-[9px] leading-none font-bold ${
                           past || closed
                             ? "text-muted-foreground"
                             : booked

@@ -63,6 +63,25 @@ html {
   scroll-behavior: smooth;
 }
 
+/* カレンダーのスタイル調整 */
+.rdp {
+  --rdp-cell-size: 2.25rem;
+  --rdp-font-family: Arial, Helvetica, sans-serif;
+}
+
+.rdp-today:not(.rdp-selected) {
+  font-weight: bold;
+}
+
+.rdp-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: var(--rdp-cell-size) !important;
+  width: var(--rdp-cell-size) !important;
+}
+
 /* Override Next.js devtools portal position (Cursor overlay) */
 nextjs-portal[data-cursor-element-id="cursor-el-947"] {
   top: auto !important;

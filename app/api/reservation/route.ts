@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     const json = await req.json()
     parsed = reservationSchema.parse(json)
   } catch (error) {
+    console.error("Validation error:", error)
     return NextResponse.json({ error: "送信内容が不正です。" }, { status: 400 })
   }
 
@@ -64,13 +65,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Google Calendarに予約を登録
     await createReservationEvent(reservationPayload)
+    console.log("Google Calendar registration successful")
 
     const start = new Date(startDate + "T00:00:00")
     const end = new Date(start)
     end.setDate(end.getDate() + Math.max(1, dayCount || 1))
     const endDateStr = end.toISOString().slice(0, 10)
 
+    // メール送信
     await sendReservationEmails({
       startDate,
       endDate: dayCount > 1 ? endDateStr : undefined,
@@ -86,12 +90,25 @@ export async function POST(req: NextRequest) {
       notes,
       totalPrice,
     })
+    console.log("Email sending successful")
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error(error)
+    console.error("Reservation error:", error)
+    
+    // より詳細なエラーメッセージ
+    let errorMessage = "予約処理に失敗しました。時間をおいて再度お試しください。"
+    
+    if (error instanceof Error) {
+      if (error.message.includes("Google")) {
+        errorMessage = "Googleカレンダーへの登録に失敗しました。管理者にお問い合わせください。"
+      } else if (error.message.includes("Resend") || error.message.includes("メール")) {
+        errorMessage = "予約メールの送信に失敗しました。予約は完了していますので、お問い合わせください。"
+      }
+    }
+    
     return NextResponse.json(
-      { error: "予約処理に失敗しました。時間をおいて再度お試しください。" },
+      { error: errorMessage },
       { status: 500 }
     )
   }
