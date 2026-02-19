@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build && npx @cloudflare/next-on-pages@latest",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cf:build": "next build && npx @cloudflare/next-on-pages@latest"
+    "cf:build": "next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

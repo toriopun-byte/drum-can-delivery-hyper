@@ -1,10 +1,13 @@
 name = "drum-can-delivery-hyper"
 compatibility_date = "2025-02-19"
 
-# Next.js on Cloudflare Pages (next-on-pages)
-# Cloudflare 公式: Build directory = .vercel/output/static
-pages_build_output_dir = ".vercel/output/static"
-
 # Node.js compatibility for API routes
 compatibility_flags = ["nodejs_compat"]
+
+# Build configuration for Next.js with Functions
+[build]
+command = "npm run build"
+
+# Functions directory
+functions_dir = "functions"
 
