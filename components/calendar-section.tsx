@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { ReservationModal } from "@/components/reservation-modal"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, Circle, X, Check, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { CalendarDays, X, Check, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { ja } from "date-fns/locale"
 import {
   format,
@@ -41,18 +41,23 @@ export function CalendarSection() {
   )
 
   const bookedDates = (data?.bookedDates ?? []).map((d) => parseISO(d))
+  const closedDates = (data?.closedDates ?? []).map((d) => parseISO(d))
 
   const isBooked = useCallback(
     (date: Date) => bookedDates.some((d) => isSameDay(d, date)),
     [bookedDates]
+  )
+  const isClosed = useCallback(
+    (date: Date) => closedDates.some((d) => isSameDay(d, date)),
+    [closedDates]
   )
   const isPast = useCallback(
     (date: Date) => isBefore(date, today),
     [today]
   )
   const isAvailable = useCallback(
-    (date: Date) => !isPast(date) && !isBooked(date),
-    [isPast, isBooked]
+    (date: Date) => !isPast(date) && !isBooked(date) && !isClosed(date),
+    [isPast, isBooked, isClosed]
   )
 
   return (
@@ -70,12 +75,16 @@ export function CalendarSection() {
             {"Googleカレンダーと連動した最新の空き状況です。"}
             <br className="hidden sm:block" />
             <span className="inline-flex items-center gap-1">
-              <Check className="w-3.5 h-3.5 text-primary" />
+              <span className="font-bold text-primary">{"◯"}</span>
               {"が予約可能、"}
             </span>
             <span className="inline-flex items-center gap-1">
-              <X className="w-3.5 h-3.5 text-destructive" />
-              {"が予約済みの日付です。"}
+              <span className="font-bold text-destructive">{"×"}</span>
+              {"が予約済み、"}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="font-bold text-muted-foreground">{"-"}</span>
+              {"が予約不可（過去日・休業日など）です。"}
             </span>
           </p>
         </div>
@@ -119,7 +128,7 @@ export function CalendarSection() {
               month={currentMonth}
               onMonthChange={setCurrentMonth}
               locale={ja}
-              disabled={(date) => isPast(date) || isBooked(date)}
+              disabled={(date) => isPast(date) || isBooked(date) || isClosed(date)}
               modifiers={{
                 booked: bookedDates,
                 available: (date: Date) => isAvailable(date),
@@ -140,18 +149,21 @@ export function CalendarSection() {
                 DayContent: ({ date }) => {
                   const booked = isBooked(date)
                   const past = isPast(date)
+                  const closed = isClosed(date)
                   return (
                     <div className="flex flex-col items-center gap-0.5">
                       <span>{date.getDate()}</span>
-                      {!past && (
-                        <span className="text-[10px] leading-none font-bold">
-                          {booked ? (
-                            <X className="w-3 h-3 text-destructive" />
-                          ) : (
-                            <Check className="w-3 h-3 text-primary" />
-                          )}
-                        </span>
-                      )}
+                      <span
+                        className={`text-[10px] leading-none font-bold ${
+                          past || closed
+                            ? "text-muted-foreground"
+                            : booked
+                            ? "text-destructive"
+                            : "text-primary"
+                        }`}
+                      >
+                        {past || closed ? "-" : booked ? "×" : "◯"}
+                      </span>
                     </div>
                   )
                 },
@@ -163,16 +175,22 @@ export function CalendarSection() {
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-border px-2">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary" />
+                <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center font-bold text-primary text-[11px]">
+                  {"◯"}
                 </div>
                 {"空きあり"}
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <div className="w-5 h-5 rounded bg-destructive/10 flex items-center justify-center">
-                  <X className="w-3 h-3 text-destructive" />
+                <div className="w-5 h-5 rounded bg-destructive/10 flex items-center justify-center font-bold text-destructive text-[11px]">
+                  {"×"}
                 </div>
                 {"予約済み"}
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="w-5 h-5 rounded bg-muted/40 flex items-center justify-center font-bold text-muted-foreground text-[11px]">
+                  {"-"}
+                </div>
+                {"予約不可"}
               </div>
             </div>
           </div>

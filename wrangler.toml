@@ -1,0 +1,6 @@
+name = "drum-can-delivery-hyper"
+compatibility_date = "2025-02-19"
+
+# Next.js on Cloudflare Pages (Workers runtime)
+pages_build_output_dir = ".vercel/output"
+

@@ -7,6 +7,7 @@ export interface CalendarData {
   year: number
   month: number
   bookedDates: string[]
+  closedDates?: string[]
 }
 
 export function generateDemoCalendarData(
@@ -14,6 +15,7 @@ export function generateDemoCalendarData(
   month: number
 ): CalendarData {
   const bookedDates: string[] = []
+  const closedDates: string[] = []
   const daysInMonth = new Date(year, month, 0).getDate()
 
   for (let day = 1; day <= daysInMonth; day++) {
@@ -21,7 +23,7 @@ export function generateDemoCalendarData(
     const dow = date.getDay()
     const isPast = date < new Date(new Date().toDateString())
     if (isPast) {
-      bookedDates.push(
+      closedDates.push(
         `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
       )
       continue
@@ -31,13 +33,13 @@ export function generateDemoCalendarData(
         `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
       )
     } else if (day % 7 === 0) {
-      bookedDates.push(
+      closedDates.push(
         `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
       )
     }
   }
 
-  return { year, month, bookedDates }
+  return { year, month, bookedDates, closedDates }
 }
 
 /**

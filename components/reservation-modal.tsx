@@ -99,6 +99,8 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
   const [notes, setNotes] = useState("")
   const [consent, setConsent] = useState(false)
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   const [calendarMonth, setCalendarMonth] = useState<Date>(defaultDate ?? new Date())
 
   useEffect(() => {
@@ -141,36 +143,58 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
   }
 
   /* ---------- Submit ---------- */
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!date || !consent) return
+    if (!date || !consent || !email) return
 
     setSending(true)
-    const endDate = dayCount === "2" ? addDays(date, 1) : undefined
-    const dateStr = format(date, "yyyy年M月d日（E）", { locale: ja })
-    const endDateStr = endDate ? format(endDate, "yyyy年M月d日（E）", { locale: ja }) : ""
-    const addOnsLabels = selectedAddOns
-      .map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id)
-      .join("、")
+    setErrorMessage(null)
+    try {
+      const addOnsLabels = selectedAddOns
+        .map((id) => ADD_ONS.find((a) => a.id === id)?.label ?? id)
+        .join("、")
 
-    // 静的サイト用: mailto で予約内容をメール送信
-    const subject = encodeURIComponent("【裸一缶】ご予約希望")
-    const body = encodeURIComponent(
-      `以下の内容で予約希望です。\n\n` +
-        `お名前: ${name}\n` +
-        `メール: ${email}\n` +
-        `電話: ${phone || "（未記入）"}\n` +
-        `ご利用日: ${dateStr}（${dayCount}日間）${endDateStr ? ` 〜 ${endDateStr}` : ""}\n` +
-        `ご利用場所: ${address}\n` +
-        `ドラム缶: ${quantity}本\n` +
-        `追加オプション: ${addOnsLabels || "なし"}\n` +
-        `お見積り: ¥${pricing.total.toLocaleString()}\n` +
-        (notes ? `備考: ${notes}\n` : "")
-    )
-    window.location.href = `mailto:drumcandelivery@gmail.com?subject=${subject}&body=${body}`
+      const startDateIso = format(date, "yyyy-MM-dd")
+      const swimwearLabel =
+        SWIMWEAR_OPTIONS.find((s) => s.id === swimwear)?.label ?? swimwear
 
-    setSending(false)
-    setSubmitted(true)
+      const response = await fetch("/api/reservation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          quantity: Number(quantity) || 1,
+          startDate: startDateIso,
+          dayCount: Number(dayCount),
+          addOns: selectedAddOns,
+          addOnLabels: addOnsLabels,
+          swimwear,
+          swimwearLabel,
+          swimwearQty: Number(swimwearQty) || 0,
+          notes,
+          totalPrice: pricing.total,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || "予約処理に失敗しました。")
+      }
+
+      setSubmitted(true)
+    } catch (err) {
+      console.error(err)
+      setErrorMessage(
+        err instanceof Error ? err.message : "予約処理に失敗しました。時間をおいて再度お試しください。"
+      )
+    } finally {
+      setSending(false)
+    }
   }
 
   /* ---------- Reset on close ---------- */
@@ -180,6 +204,7 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
       setTimeout(() => {
         setSubmitted(false)
         setSending(false)
+        setErrorMessage(null)
         setName("")
         setEmail("")
         setPhone("")
@@ -210,10 +235,15 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
   )
 
   const bookedDates = (calendarData?.bookedDates ?? []).map((d) => parseISO(d))
+  const closedDates = (calendarData?.closedDates ?? []).map((d) => parseISO(d))
 
   const isBooked = useCallback(
     (d: Date) => bookedDates.some((bd) => isSameDay(bd, d)),
     [bookedDates]
+  )
+  const isClosed = useCallback(
+    (d: Date) => closedDates.some((cd) => isSameDay(cd, d)),
+    [closedDates]
   )
 
   return (
@@ -228,6 +258,8 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 {"基本料金 ¥8,000/缶/日 + オプション。セルフスタイルの機材レンタルです。"}
+                <br />
+                {"お支払いは当日、現金またはPayPayにてお願いいたします。"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
@@ -261,21 +293,28 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
                       locale={ja}
                       month={calendarMonth}
                       onMonthChange={setCalendarMonth}
-                      disabled={(d) => isBefore(d, addDays(today, 1)) || isBooked(d)}
+                      disabled={(d) =>
+                        isBefore(d, addDays(today, 1)) || isBooked(d) || isClosed(d)
+                      }
                       components={{
                         DayContent: ({ date: day }) => {
                           const isPastStart = isBefore(day, addDays(today, 1))
                           const booked = isBooked(day)
+                          const closed = isClosed(day)
                           return (
                             <div className="flex flex-col items-center gap-0.5">
                               <span>{day.getDate()}</span>
                               {!isPastStart && (
                                 <span
                                   className={`text-[10px] leading-none font-bold ${
-                                    booked ? "text-destructive" : "text-primary"
+                                    closed
+                                      ? "text-muted-foreground"
+                                      : booked
+                                      ? "text-destructive"
+                                      : "text-primary"
                                   }`}
                                 >
-                                  {booked ? "×" : "◯"}
+                                  {closed ? "-" : booked ? "×" : "◯"}
                                 </span>
                               )}
                             </div>
@@ -530,6 +569,11 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
                   `予約を送信する（¥${pricing.total.toLocaleString()}）`
                 )}
               </Button>
+              {errorMessage && (
+                <p className="text-xs text-destructive text-center -mt-2">
+                  {errorMessage}
+                </p>
+              )}
               {!consent && (
                 <p className="text-xs text-destructive text-center -mt-2">
                   {"上記の同意事項にチェックを入れてください"}
