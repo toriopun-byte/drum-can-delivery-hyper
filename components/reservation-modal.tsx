@@ -273,6 +273,33 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
                 <br />
                 {"お支払いは当日、現金またはPayPayにてお願いいたします。"}
               </DialogDescription>
+              
+              {/* カレンダー凡例 */}
+              <div className="bg-blue-50 rounded-lg p-3 mt-3">
+                <h4 className="text-xs font-semibold text-blue-900 mb-2">{"カレンダーの記号について"}</h4>
+                <div className="flex flex-wrap gap-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-[8px]">◯</span>
+                    <span className="text-gray-700">{"予約可能"}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[8px]">×</span>
+                    <span className="text-gray-700">{"予約済み"}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-gray-400 text-white flex items-center justify-center font-bold text-[8px]">−</span>
+                    <span className="text-gray-700">{"予約不可"}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 予約期間の注意 */}
+              <div className="bg-amber-50 rounded-lg p-3 mt-2">
+                <h4 className="text-xs font-semibold text-amber-900 mb-1">{"予約期間について"}</h4>
+                <p className="text-xs text-amber-800">
+                  {"2026年12月31日まで予約可能です。それ以降は予約できません。"}
+                </p>
+              </div>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
               {/* ---------- Date selection ---------- */}
