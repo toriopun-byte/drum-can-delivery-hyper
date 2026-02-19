@@ -191,6 +191,7 @@ export async function createReservationEvent(
     throw new Error("環境変数 GOOGLE_CALENDAR_ID が設定されていません。")
   }
 
+  console.log("Creating event in calendar:", calendarId)
   const accessToken = await getGoogleAccessToken()
 
   const start = new Date(payload.startDate + "T00:00:00")
