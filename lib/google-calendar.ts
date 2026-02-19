@@ -202,6 +202,30 @@ export async function createReservationEvent(
   console.log("Creating event in calendar:", calendarId)
   const accessToken = await getGoogleAccessToken()
 
+  // まずカレンダーにアクセスできるか確認
+  try {
+    const testRes = await fetch(
+      `${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    
+    if (!testRes.ok) {
+      const text = await testRes.text()
+      console.error(`Calendar access test failed: ${testRes.status} ${text}`)
+      throw new Error(`カレンダーへのアクセスに失敗しました: ${testRes.status} ${text}`)
+    }
+    
+    const calendarInfo = await testRes.json()
+    console.log(`Calendar found: ${calendarInfo.summary} (${calendarInfo.timeZone})`)
+  } catch (error) {
+    console.error("Calendar access test error:", error)
+    throw new Error(`カレンダーへのアクセスに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+
   const start = new Date(payload.startDate + "T00:00:00")
   const end = new Date(start)
   end.setDate(end.getDate() + Math.max(1, payload.dayCount || 1))
