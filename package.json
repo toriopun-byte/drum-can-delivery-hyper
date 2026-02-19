@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
+    "build:cloudflare": "next build && npx @cloudflare/next-on-pages@latest",
     "start": "next start",
-    "lint": "next lint",
-    "cf:build": "next build"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
