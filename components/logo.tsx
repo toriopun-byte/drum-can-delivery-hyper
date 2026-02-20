@@ -5,7 +5,7 @@ import Image from "next/image"
 /** ロゴの位置・拡大率。必要に応じて数値を変更してください */
 const LOGO_TRANSFORM = {
   x: 0,   // 横方向の移動（px）
-  y: 3,   // 縦方向の移動（px）
+  y: 0,   // 縦方向の移動（px）
   z: 1.35, // 拡大率（1 = 100%、1.25 = 125%）
 } as const
 

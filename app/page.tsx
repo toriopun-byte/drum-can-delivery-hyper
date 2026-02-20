@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/hero-section"
 import { FeaturesSection } from "@/components/features-section"
 import { ServiceDetailSection } from "@/components/service-detail-section"
 import { TargetSection } from "@/components/target-section"
+import { UsageGallerySection } from "@/components/usage-gallery-section"
 import { CalendarSection } from "@/components/calendar-section"
 import { PricingSection } from "@/components/pricing-section"
 import { HowtoSection } from "@/components/howto-section"
@@ -22,6 +23,7 @@ export default function Page() {
       <FeaturesSection />
       <ServiceDetailSection />
       <TargetSection />
+      <UsageGallerySection />
       <CalendarSection />
       <PricingSection />
       <AreaSection />
