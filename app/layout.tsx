@@ -98,6 +98,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/favicon-192x192.png" />
         <StructuredData />
       </head>
       <body className={`${notoSansJP.variable} font-sans antialiased`}>{children}</body>
