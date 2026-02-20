@@ -17,23 +17,23 @@ export function UsageGallerySection() {
           </p>
         </div>
 
-        <div className="flex justify-center gap-4 md:gap-6">
-          <div className="relative w-32 h-40 md:w-40 md:h-48 rounded-lg overflow-hidden shadow-md border-2 border-white/50">
+        <div className="flex justify-center gap-6 md:gap-8">
+          <div className="relative w-44 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
             <Image
               src="/images/usage-1.jpg"
               alt="ドラム缶風呂での入浴風景"
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 128px, 160px"
+              sizes="(max-width: 768px) 176px, 224px"
             />
           </div>
-          <div className="relative w-32 h-40 md:w-40 md:h-48 rounded-lg overflow-hidden shadow-md border-2 border-white/50">
+          <div className="relative w-44 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
             <Image
               src="/images/usage-2.jpg"
               alt="ドラム缶風呂でのリラックスタイム"
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 128px, 160px"
+              sizes="(max-width: 768px) 176px, 224px"
             />
           </div>
         </div>

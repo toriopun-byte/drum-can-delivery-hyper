@@ -210,99 +210,84 @@ export function CalendarSection() {
             </div>
           </div>
 
-          {/* Selected date info */}
+          {/* Info panel with date selection and reservation steps */}
           <div className="flex-1 max-w-md w-full">
-            {selectedDate ? (
-              <div className="bg-background rounded-2xl border border-primary/20 p-6 shadow-sm">
+            <div className="bg-background rounded-2xl border border-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <CalendarDays className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{"日付を選んでください"}</p>
+                  <p className="text-base font-bold text-foreground">
+                    {"カレンダーからご希望の日付をクリック"}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-5">
+                {"カレンダーからご希望の日付をクリックすると、空き状況と予約フォームが表示されます。"}
+              </p>
+
+              <div className="border-t border-border pt-5">
+                <h4 className="font-bold text-foreground text-sm mb-4">{"予約について"}</h4>
+                <ul className="flex flex-col gap-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                      {"1"}
+                    </span>
+                    <span>{"カレンダーから空きのある日付を選択"}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                      {"2"}
+                    </span>
+                    <span>{"1日 or 2日間を選んでオプションを追加"}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                      {"3"}
+                    </span>
+                    <span>{"予約完了メールが届きます"}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Selected date card - shows when date is selected */}
+            {selectedDate && (
+              <div className="mt-6 bg-background rounded-2xl border border-primary/20 p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <CalendarDays className="w-6 h-6 text-primary" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <CalendarDays className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">{"選択した日付"}</p>
-                    <p className="text-xl font-bold text-foreground">
+                    <p className="text-xs text-muted-foreground">{"選択した日付"}</p>
+                    <p className="text-lg font-bold text-foreground">
                       {format(selectedDate, "yyyy年M月d日（E）", { locale: ja })}
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-secondary/50 rounded-xl p-4 mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                <div className="bg-secondary/50 rounded-xl p-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
                     <span className="text-sm font-semibold text-foreground">
                       {"予約可能です"}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {"配達時間帯: 午前9:00〜午後5:00"}
                   </p>
                 </div>
 
-                {/* カレンダー凡例 */}
-                <div className="bg-blue-50 rounded-xl p-4 mb-4">
-                  <h4 className="text-sm font-semibold text-blue-900 mb-2">{"カレンダーの記号について"}</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">◯</span>
-                      <span className="text-gray-700">{"予約可能"}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">☓</span>
-                      <span className="text-gray-700">{"予約済み"}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-gray-400 text-white flex items-center justify-center font-bold">−</span>
-                      <span className="text-gray-700">{"予約不可"}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 予約期間の注意 */}
-                <div className="bg-amber-50 rounded-xl p-4 mb-4">
-                  <h4 className="text-sm font-semibold text-amber-900 mb-2">{"予約期間について"}</h4>
-                  <p className="text-xs text-amber-800">
-                    {"2026年12月31日まで予約可能です。それ以降は予約できません。"}
-                  </p>
-                </div>
-
                 <ReservationModal defaultDate={selectedDate}>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-6 rounded-xl text-base shadow-md">
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-5 rounded-xl text-base shadow-md">
                     {"この日で予約する"}
                   </Button>
                 </ReservationModal>
               </div>
-            ) : (
-              <div className="bg-background rounded-2xl border border-dashed border-border p-8 text-center">
-                <CalendarDays className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-                <p className="text-lg font-semibold text-foreground mb-2">
-                  {"日付を選んでください"}
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {"カレンダーからご希望の日付をクリックすると、"}
-                  <br className="hidden sm:block" />
-                  {"空き状況と予約フォームが表示されます。"}
-                </p>
-              </div>
             )}
-
-            {/* Quick info card */}
-            <div className="mt-6 bg-background rounded-2xl border border-border p-5">
-              <h4 className="font-bold text-foreground text-sm mb-3">{"予約について"}</h4>
-              <ul className="flex flex-col gap-2 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold mt-0.5">{"1"}</span>
-                  {"カレンダーから空きのある日付を選択"}
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold mt-0.5">{"2"}</span>
-                  {"1日 or 2日間を選んでオプションを追加"}
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold mt-0.5">{"3"}</span>
-                  {"予約完了メールが届きます"}
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>

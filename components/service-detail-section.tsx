@@ -4,20 +4,18 @@ import { Package, XCircle, Check, X } from "lucide-react"
 
 const included = [
   "ドラム缶本体",
-  "五右衛門風呂用すのこ",
-  "温度計",
+  "すのこ",
   "設置用レンガ",
   "踏み台",
   "設置・撤去作業",
+  "排水作業",
+  "給水用品",
 ]
 
 const notIncluded = [
   "入浴のサポート・見守り",
-  "給水作業",
-  "火の管理・火起こし代行",
   "場所の提供",
   "タオル等のアメニティ",
-  "湯沸かし代行",
 ]
 
 export function ServiceDetailSection() {
