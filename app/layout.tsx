@@ -38,6 +38,11 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL('https://candeli.jp'),
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
   alternates: {
     canonical: '/',
   },
