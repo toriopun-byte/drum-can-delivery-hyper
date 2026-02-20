@@ -22,8 +22,8 @@ export default function Page() {
       <HeroSection />
       <FeaturesSection />
       <ServiceDetailSection />
-      <TargetSection />
       <UsageGallerySection />
+      <TargetSection />
       <CalendarSection />
       <PricingSection />
       <AreaSection />

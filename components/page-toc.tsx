@@ -5,8 +5,8 @@ import { useCallback } from "react"
 const sections = [
   { id: "service", label: "サービスの特長" },
   { id: "service-detail", label: "レンタル内容" },
-  { id: "target", label: "ご利用形態" },
   { id: "gallery", label: "使用風景" },
+  { id: "target", label: "ご利用形態" },
   { id: "calendar", label: "予約カレンダー" },
   { id: "pricing", label: "料金" },
   { id: "area", label: "配達エリア" },
