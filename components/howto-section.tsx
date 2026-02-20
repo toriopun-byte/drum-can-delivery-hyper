@@ -91,20 +91,10 @@ const steps = [
 ]
 
 export function HowtoSection() {
-  const [expandedSteps, setExpandedSteps] = useState<number[]>([])
-
-  const allExpanded = expandedSteps.length === steps.length
+  const [allExpanded, setAllExpanded] = useState(false)
 
   const toggleAll = () => {
-    setExpandedSteps(allExpanded ? [] : steps.map((s) => s.number))
-  }
-
-  const toggleStep = (stepNumber: number) => {
-    setExpandedSteps((prev) =>
-      prev.includes(stepNumber)
-        ? prev.filter((n) => n !== stepNumber)
-        : [...prev, stepNumber]
-    )
+    setAllExpanded(!allExpanded)
   }
 
   return (
@@ -137,8 +127,6 @@ export function HowtoSection() {
           <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
 
           {steps.map((step, idx) => {
-            const isExpanded = expandedSteps.includes(step.number)
-
             return (
               <div
                 key={step.number}
@@ -153,20 +141,13 @@ export function HowtoSection() {
 
                 {/* Content */}
                 <div className="flex-1 pt-1.5 pb-4">
-                  <button
-                    type="button"
-                    onClick={() => toggleStep(step.number)}
-                    className="flex w-full items-center gap-2 mb-2 text-left group"
-                  >
+                  <div className="flex items-center gap-2 mb-2">
                     <step.icon className="w-5 h-5 text-primary flex-shrink-0" />
                     <h3 className="text-lg font-bold text-foreground flex-1">{step.title}</h3>
-                    <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                      {isExpanded ? "−" : "＋"}
-                    </span>
-                  </button>
+                  </div>
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      allExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
                     <div className="pt-2">

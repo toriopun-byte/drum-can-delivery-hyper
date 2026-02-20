@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 
 const faqs = [
   {
@@ -46,23 +46,17 @@ const faqs = [
   },
 ]
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(false)
-
+function FaqItem({ question, answer, isExpanded }: { question: string; answer: string; isExpanded: boolean }) {
   return (
     <div className="border border-border rounded-xl overflow-hidden bg-card">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-secondary/30 transition-colors"
-      >
+      <div className="w-full flex items-center justify-between px-5 py-4">
         <span className="text-sm font-semibold text-foreground pr-4">
           <span className="text-primary mr-2">{"Q."}</span>
           {question}
         </span>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
+        <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+      </div>
+      {isExpanded && (
         <div className="px-5 pb-4">
           <div className="pt-2 border-t border-border">
             <p className="text-sm text-muted-foreground leading-relaxed pt-3">
@@ -77,6 +71,12 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export function FaqSection() {
+  const [allExpanded, setAllExpanded] = useState(false)
+
+  const toggleAll = () => {
+    setAllExpanded(!allExpanded)
+  }
+
   return (
     <section id="faq" className="bg-background py-20 md:py-28">
       <div className="mx-auto max-w-3xl px-6">
@@ -84,9 +84,19 @@ export function FaqSection() {
           <span className="inline-block bg-accent/10 text-accent text-sm font-bold px-4 py-1.5 rounded-full mb-4">
             {"よくある質問"}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
-            {"FAQ"}
-          </h2>
+          <button
+            onClick={toggleAll}
+            className="group cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance inline-flex items-center gap-2">
+              {"FAQ"}
+              {allExpanded ? (
+                <ChevronUp className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+              ) : (
+                <ChevronDown className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+              )}
+            </h2>
+          </button>
           <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
             {"ご予約前に、気になるポイントをチェックしてください。"}
           </p>
@@ -94,7 +104,7 @@ export function FaqSection() {
 
         <div className="flex flex-col gap-3">
           {faqs.map((faq) => (
-            <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
+            <FaqItem key={faq.question} question={faq.question} answer={faq.answer} isExpanded={allExpanded} />
           ))}
         </div>
       </div>

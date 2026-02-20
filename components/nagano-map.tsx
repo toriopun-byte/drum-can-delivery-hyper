@@ -9,19 +9,20 @@ export function NaganoMap() {
       className="w-full h-auto max-w-md"
       aria-label="長野県の地図"
     >
-      {/* Nagano prefecture outline - from reference (irregular contours, curves, indentations, protrusions) */}
+      {/* Nagano prefecture outline - more accurate shape with distinctive features */}
       <path
-        d="M 198 6
-           C 225 12 252 22 282 40
-           L 312 65 C 338 95 355 135 362 178
-           C 366 210 364 245 354 285
-           C 342 328 318 368 282 408
-           C 248 443 205 462 162 468
-           C 120 473 80 465 52 442
-           C 28 418 12 382 10 342
-           C 8 300 22 255 48 210
-           C 72 168 108 125 148 88
-           C 172 62 188 38 198 6 Z"
+        d="M 195 8
+           C 220 10 245 15 268 25
+           L 295 45 C 315 65 335 95 345 130
+           L 355 165 C 362 195 365 225 360 255
+           C 358 285 350 315 335 340
+           L 315 365 C 295 385 270 405 240 415
+           L 210 425 C 185 430 160 432 135 425
+           L 105 415 C 85 405 70 390 60 370
+           L 50 345 C 40 320 35 290 35 260
+           C 35 230 40 200 50 170
+           L 65 140 C 80 110 100 85 125 65
+           L 155 40 C 170 25 182 15 195 8 Z"
         fill="hsl(211 65% 45% / 0.08)"
         stroke="hsl(211 65% 45%)"
         strokeWidth="2.5"
