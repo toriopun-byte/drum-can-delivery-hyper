@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback } from "react"
+import { Instagram } from "lucide-react"
 
 const sections = [
   { id: "service", label: "サービスの特長" },
@@ -82,6 +83,17 @@ export function PageToc() {
           </a>
         )
       })}
+      <div className="mt-3 pt-3 border-t border-border">
+        <a
+          href="https://www.instagram.com/durumcandelivery?igsh=Mzl4aG9zMWd4a2Nv"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+        >
+          <Instagram className="w-4 h-4" />
+          {"インスタはこちら"}
+        </a>
+      </div>
     </nav>
   )
 }

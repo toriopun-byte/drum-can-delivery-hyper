@@ -1,5 +1,6 @@
 "use client"
 
+import { Instagram } from "lucide-react"
 import { Logo } from "@/components/logo"
 
 const footerLinks = [
@@ -57,6 +58,15 @@ export function SiteFooter() {
                 className="text-sm text-[hsl(0,0%,100%)]/80 hover:text-[hsl(0,0%,100%)] transition-colors"
               >
                 {"メール: drumcandelivery@gmail.com"}
+              </a>
+              <a
+                href="https://www.instagram.com/durumcandelivery?igsh=Mzl4aG9zMWd4a2Nv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[hsl(0,0%,100%)]/80 hover:text-[hsl(0,0%,100%)] transition-colors flex items-center gap-2 mt-1"
+              >
+                <Instagram className="w-4 h-4" />
+                {"インスタグラム"}
               </a>
             </div>
             <p className="text-xs text-[hsl(0,0%,100%)]/40">
