@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { ReservationModal } from "@/components/reservation-modal"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, X, Check, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { CalendarDays, X, Check, Loader2, ChevronLeft, ChevronRight, Construction } from "lucide-react"
 import { ja } from "date-fns/locale"
 import {
   format,
@@ -19,6 +19,10 @@ import {
 } from "date-fns"
 import useSWR from "swr"
 import { fetchCalendarData, type CalendarData } from "@/lib/calendar-demo"
+
+// 予約機能のON/OFF設定 - falseにすると「準備中」表示になります
+// 「戻して」と言われたら true に変更してください
+const RESERVATION_ENABLED = false
 
 // 予約可能な最終日（2026年12月31日）
 const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12月）
@@ -100,8 +104,10 @@ export function CalendarSection() {
         </div>
 
         <div className="flex flex-col lg:flex-row items-start justify-center gap-8">
-          {/* Calendar */}
-          <div className="bg-background rounded-2xl border border-border p-5 shadow-sm relative">
+          {RESERVATION_ENABLED ? (
+            <>
+              {/* Calendar */}
+              <div className="bg-background rounded-2xl border border-border p-5 shadow-sm relative">
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-4">
               <Button
@@ -289,6 +295,25 @@ export function CalendarSection() {
               </div>
             )}
           </div>
+          </>
+          ) : (
+            <div className="w-full max-w-lg mx-auto bg-background rounded-2xl border border-border p-10 shadow-sm">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Construction className="w-8 h-8 text-amber-600" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground">
+                  {"現在準備中のため予約できません"}
+                </h3>
+                <p className="text-muted-foreground text-sm max-w-sm">
+                  {"ただいま準備を進めております。予約開始まで今しばらくお待ちください。"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {"ご質問はInstagramまたはメールにてお願いいたします"}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
