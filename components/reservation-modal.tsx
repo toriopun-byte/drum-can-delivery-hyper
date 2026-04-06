@@ -25,10 +25,11 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react"
+import { CheckCircle2, CalendarDays, Loader2, Construction } from "lucide-react"
 import { ja } from "date-fns/locale"
 import { format, isBefore, startOfDay, addDays, isSameDay, parseISO, isAfter } from "date-fns"
 import useSWR, { useSWRConfig } from "swr"
+import { RESERVATION_ENABLED } from "@/lib/reservation-config"
 
 // 予約可能な最終日（2026年12月31日）
 const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12月）
@@ -36,7 +37,7 @@ const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12
 /* ------------------------------------------------------------------ */
 /*  Pricing Constants                                                  */
 /* ------------------------------------------------------------------ */
-const BASE_PRICE = 8000
+const BASE_PRICE = 6000
 
 const ADD_ONS = [
   { id: "firewood", label: "薪セット（1束）", price: 1500 },
@@ -265,14 +266,32 @@ export function ReservationModal({ children, defaultDate }: ReservationModalProp
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg bg-card text-card-foreground max-h-[90vh] overflow-y-auto">
-        {!submitted ? (
+        {!RESERVATION_ENABLED ? (
+          <div className="flex flex-col items-center text-center gap-4 py-8">
+            <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+              <Construction className="w-8 h-8 text-amber-600" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground">
+              {"現在は予約できません"}
+            </h3>
+            <p className="text-muted-foreground text-sm max-w-sm">
+              {"現在は予約受付を停止しています。予約再開まで今しばらくお待ちください。"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {"ご質問はInstagramまたはメールにてお願いいたします"}
+            </p>
+            <Button variant="outline" onClick={() => handleOpenChange(false)} className="mt-4 border-border text-foreground hover:bg-secondary bg-transparent">
+              {"閉じる"}
+            </Button>
+          </div>
+        ) : !submitted ? (
           <>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
                 {"機材レンタル予約フォーム"}
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                {"基本料金 ¥8,000/缶/日 + オプション。セルフスタイルの機材レンタルです。"}
+                {"基本料金 ¥6,000/缶/日 + オプション。セルフスタイルの機材レンタルです。"}
                 <br />
                 {"お支払いは当日、現金またはPayPayにてお願いいたします。"}
               </DialogDescription>

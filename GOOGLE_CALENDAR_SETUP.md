@@ -1,5 +1,12 @@
 # Google Calendar API 連携設定
 
+## 0. 予約受付のON/OFF切り替え
+
+- 予約受付の切り替えは `lib/reservation-config.ts` の `RESERVATION_ENABLED` で行います。
+- `true` にすると予約可能（カレンダー選択・予約フォーム表示）になります。
+- `false` にすると予約不可（「現在は予約できません」表示）になります。
+- 本番反映には再ビルド・再デプロイが必要です。
+
 ## 1. Google Cloud Console での設定
 
 ### サービスアカウントの作成

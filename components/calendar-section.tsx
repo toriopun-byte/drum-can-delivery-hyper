@@ -19,10 +19,7 @@ import {
 } from "date-fns"
 import useSWR from "swr"
 import { fetchCalendarData, type CalendarData } from "@/lib/calendar-demo"
-
-// 予約機能のON/OFF設定 - falseにすると「準備中」表示になります
-// 「戻して」と言われたら true に変更してください
-const RESERVATION_ENABLED = false
+import { RESERVATION_ENABLED } from "@/lib/reservation-config"
 
 // 予約可能な最終日（2026年12月31日）
 const MAX_RESERVATION_DATE = new Date(2026, 11, 31) // 月は0-indexed（11 = 12月）
@@ -83,23 +80,29 @@ export function CalendarSection() {
             {"予約カレンダー"}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
-            {"ご希望の日付を選んで予約"}
+            {RESERVATION_ENABLED ? "ご希望の日付を選んで予約" : "現在は予約できません"}
           </h2>
           <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-            {"Googleカレンダーと連動した最新の空き状況です。"}
-            <br className="hidden sm:block" />
-            <span className="inline-flex items-center gap-1">
-              <span className="font-bold text-primary">{"◯"}</span>
-              {"が予約可能、"}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="font-bold text-destructive">{"×"}</span>
-              {"が予約済み、"}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="font-bold text-muted-foreground">{"-"}</span>
-              {"が予約不可（過去日・休業日など）です。"}
-            </span>
+            {RESERVATION_ENABLED ? (
+              <>
+                {"Googleカレンダーと連動した最新の空き状況です。"}
+                <br className="hidden sm:block" />
+                <span className="inline-flex items-center gap-1">
+                  <span className="font-bold text-primary">{"◯"}</span>
+                  {"が予約可能、"}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="font-bold text-destructive">{"×"}</span>
+                  {"が予約済み、"}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="font-bold text-muted-foreground">{"-"}</span>
+                  {"が予約不可（過去日・休業日など）です。"}
+                </span>
+              </>
+            ) : (
+              "現在は予約受付を停止しています。再開まで今しばらくお待ちください。"
+            )}
           </p>
         </div>
 
@@ -303,10 +306,10 @@ export function CalendarSection() {
                   <Construction className="w-8 h-8 text-amber-600" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground">
-                  {"現在準備中のため予約できません"}
+                  {"現在は予約できません"}
                 </h3>
                 <p className="text-muted-foreground text-sm max-w-sm">
-                  {"ただいま準備を進めております。予約開始まで今しばらくお待ちください。"}
+                  {"現在は予約受付を停止しています。予約再開まで今しばらくお待ちください。"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
                   {"ご質問はInstagramまたはメールにてお願いいたします"}
